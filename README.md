@@ -9,15 +9,15 @@ A GitHub Action for installing the [helm/chart-testing](https://github.com/helm/
 1. A GitHub repo containing a directory with your Helm charts (e.g: `charts`)
 1. A workflow YAML file in your `.github/workflows` directory.
   An [example workflow](#example-workflow) is available below.
-  For more information, reference the GitHub Help Documentation for [Creating a workflow file](https://help.github.com/en/articles/configuring-a-workflow#creating-a-workflow-file)
+  For more information, reference the GitHub Help Documentation for [Creating a workflow file](https://docs.github.com/en/actions/writing-workflows/quickstart#creating-your-first-workflow)
 
 ### Inputs
 
 For more information on inputs, see the [API Documentation](https://developer.github.com/v3/repos/releases/#input)
 
-- `version`: The chart-testing version to install (default: `3.9.0`)
-- `yamllint_version`: The chart-testing version to install (default: `1.27.1`)
-- `yamale_version`: The chart-testing version to install (default: `3.0.4`)
+- `version`: The chart-testing version to install (default: `3.14.0`)
+- `yamllint_version`: The `yamllint` version to install (default: `1.33.0`)
+- `yamale_version`: The `yamale` version to install (default: `6.0.0`)
 
 ### Example Workflow
 
@@ -32,27 +32,29 @@ name: Lint and Test Charts
 
 on: pull_request
 
+permissions: {}
+
 jobs:
   lint-test:
     runs-on: ubuntu-latest
+    permisions:
+      contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5.0.0
         with:
           fetch-depth: 0
 
       - name: Set up Helm
-        uses: azure/setup-helm@v3
-        with:
-          version: v3.12.1
+        uses: azure/setup-helm@v4.3.1
 
-      - uses: actions/setup-python@v4
+      - uses: actions/setup-python@v6.0.0
         with:
-          python-version: '3.10'
+          python-version: '3.x'
           check-latest: true
 
       - name: Set up chart-testing
-        uses: helm/chart-testing-action@v2.6.0
+        uses: helm/chart-testing-action@v2.8.0
 
       - name: Run chart-testing (list-changed)
         id: list-changed
@@ -68,7 +70,7 @@ jobs:
 
       - name: Create kind cluster
         if: steps.list-changed.outputs.changed == 'true'
-        uses: helm/kind-action@v1.8.0
+        uses: helm/kind-action@v1.12.0
 
       - name: Run chart-testing (install)
         if: steps.list-changed.outputs.changed == 'true'
